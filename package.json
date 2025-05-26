@@ -1,0 +1,24 @@
+{
+  "name": "clientexxfakestore",
+  "version": "1.0.0",
+  "description": " hacer peticiones a FakeStore",
+  "keywords": [
+    "node",
+    "aplicación"
+  ],
+  "homepage": "https://github.com/BernalGerar/ConsumirFakeSotore#readme",
+  "bugs": {
+    "url": "https://github.com/BernalGerar/ConsumirFakeSotore/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BernalGerar/ConsumirFakeSotore.git"
+  },
+  "license": "ISC",
+  "author": "David Bernal",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
