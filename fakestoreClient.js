@@ -18,8 +18,15 @@ function processRequest(request) {
 }
 
 async function handleResponseError (res) {
-    const errorMessage = ( await res.text() ).match(/<pre>(.*?)<\/pre>/)[1];
-    console.error( errorMessage );
+    const errorM = ( await res.text() ).match(errorMessage)[1];
+    console.error( errorM );
+}
+
+async function isResponseInvalid(res) {
+    const errorM = await res.text();
+    const state = errorM.length && errorM !== "null" ? false : true;
+    state ? console.error("El producto no existe, id incorrecto") : false;
+    return state;
 }
 
 async function getRequest(url, method) {
@@ -38,7 +45,7 @@ async function getRequest(url, method) {
             return;
         }
 
-        console.log( await res.json() );
+        !( await isResponseInvalid(res) ) && console.log( await res.text() )
 
     } catch(err) {
         console.error("Algo fue mal\n", err.message);
@@ -56,16 +63,16 @@ async function postRequest(url, method, product) {
             body: JSON.stringify(product)
         }
 
+        const res = await fetch(url, config);
+
         if(!res.ok) {
             await handleResponseError(res);
             return;
         }
 
-        const data = await fetch(url, config);
-
         console.log("Se agregó el siguiente producto: ");
         console.log( await data.json() );
-        
+
     }catch(err) {
         console.error("Algo fue mal\n", err.message);
     }
@@ -79,15 +86,14 @@ async function deleteRequest(url, method) {
                 "Accept": "application/json"
             }
         }
-        const data = await fetch(url, config);
+        const res = await fetch(url, config);
 
         if(!res.ok) {
             await handleResponseError(res);
             return;
         }
 
-        console.log("Se elimino el siguiente producto: ");
-        console.log( await data.json() );
+        !( await isResponseInvalid(res) ) && console.log("Se elimino el siguiente producto\n", await res.json() );
 
     }catch(err) {
         console.error("Algo salio mal !!");
@@ -95,7 +101,7 @@ async function deleteRequest(url, method) {
     }
 }
 
-export  function requestToFakeStore(request) {
+export default function requestToFakeStore(request) {
     const [method, endpoint, body] = processRequest(request);
     //console.log(method, endpoint, body);
     
@@ -120,4 +126,4 @@ export  function requestToFakeStore(request) {
 
 }
 
-requestToFakeStore(process.argv.slice(2));
+//requestToFakeStore(process.argv.slice(2));
