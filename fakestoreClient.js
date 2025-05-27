@@ -1,4 +1,5 @@
 const FakeStoreURL = "https://fakestoreapi.com";
+const errorMessage = /<pre>(.*?)<\/pre>/;
 
 function processRequest(request) {
     const method = request[0];
@@ -16,56 +17,104 @@ function processRequest(request) {
     ]
 }
 
-async function getProduct(url, method) {
-    const config = {
-        method: method,
-        headers: {
-            "Accept": "application/json"
-        }
-    }
-    const data = await fetch(url, config);
-    console.log( await data.json() );
+async function handleResponseError (res) {
+    const errorMessage = ( await res.text() ).match(/<pre>(.*?)<\/pre>/)[1];
+    console.error( errorMessage );
 }
 
-async function postProduct(url, method, product) {
-    const config = {
-        method: method,
-        headers: {
-            "Content-Type": "application/json",
-            "Accept": "application/json"
-        },
-        body: JSON.stringify(product)
+async function getRequest(url, method) {
+    try {
+        const config = {
+            method: method,
+            headers: {
+                "Accept": "application/json"
+            }
+        }
+
+        const res = await fetch(url, config);
+
+        if(!res.ok) {
+            await handleResponseError(res);
+            return;
+        }
+
+        console.log( await res.json() );
+
+    } catch(err) {
+        console.error("Algo fue mal\n", err.message);
     }
-    const data = await fetch(url, config);
-    console.log( await data.json() );
 }
 
-async function deleteProduct(url, method) {
-    const config = {
-        method: method,
-        headers: {
-            "Accept": "application/json"
+async function postRequest(url, method, product) {
+    try {
+        const config = {
+            method: method,
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            },
+            body: JSON.stringify(product)
         }
+
+        if(!res.ok) {
+            await handleResponseError(res);
+            return;
+        }
+
+        const data = await fetch(url, config);
+
+        console.log("Se agregó el siguiente producto: ");
+        console.log( await data.json() );
+        
+    }catch(err) {
+        console.error("Algo fue mal\n", err.message);
     }
-    const data = await fetch(url, config);
-    console.log( await data.json());
- }
+}
+
+async function deleteRequest(url, method) {
+    try {
+        const config = {
+            method: method,
+            headers: {
+                "Accept": "application/json"
+            }
+        }
+        const data = await fetch(url, config);
+
+        if(!res.ok) {
+            await handleResponseError(res);
+            return;
+        }
+
+        console.log("Se elimino el siguiente producto: ");
+        console.log( await data.json() );
+
+    }catch(err) {
+        console.error("Algo salio mal !!");
+        console.log(err.message);
+    }
+}
 
 export  function requestToFakeStore(request) {
     const [method, endpoint, body] = processRequest(request);
-    console.log(method, endpoint, body);
+    //console.log(method, endpoint, body);
     
     switch(method) {
         case "GET":
-            getProduct(FakeStoreURL + endpoint, method)
+            getRequest(FakeStoreURL + endpoint, method)
         break;
 
         case "POST":
-            postProduct(FakeStoreURL + endpoint, method, body)
+            postRequest(FakeStoreURL + endpoint, method, body)
         break;
 
         case "DELETE":
-            deleteProduct(FakeStoreURL + endpoint, method)
+            deleteRequest(FakeStoreURL + endpoint, method)
+        break;
+
+        default:
+            console.error("Solo se admiten tres métodos: POST, GET, DELETE.");
+            console.log("Recordá que los métodos deben escribirse en mayúsculas (por ejemplo: 'GET').");
         break;
     }
 
