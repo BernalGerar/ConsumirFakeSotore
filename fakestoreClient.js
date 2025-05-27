@@ -22,9 +22,8 @@ async function handleResponseError (res) {
     console.error( errorM );
 }
 
-async function isResponseInvalid(res) {
-    const errorM = await res.text();
-    const state = errorM.length && errorM !== "null" ? false : true;
+async function isResponseInvalid(data) {
+    const state = data.length && data !== "null" ? false : true;
     state ? console.error("El producto no existe, id incorrecto") : false;
     return state;
 }
@@ -45,7 +44,8 @@ async function getRequest(url, method) {
             return;
         }
 
-        !( await isResponseInvalid(res) ) && console.log( await res.text() )
+        const data = await res.text();
+        !( await isResponseInvalid( data ) ) && console.log("Producto/s:\n", JSON.parse( data ) )
 
     } catch(err) {
         console.error("Algo fue mal\n", err.message);
@@ -71,7 +71,7 @@ async function postRequest(url, method, product) {
         }
 
         console.log("Se agregó el siguiente producto: ");
-        console.log( await data.json() );
+        console.log( await res.json() );
 
     }catch(err) {
         console.error("Algo fue mal\n", err.message);
@@ -93,7 +93,8 @@ async function deleteRequest(url, method) {
             return;
         }
 
-        !( await isResponseInvalid(res) ) && console.log("Se elimino el siguiente producto\n", await res.json() );
+        const data = await res.text();
+        !( await isResponseInvalid(data) ) && console.log("Se eliminó el siguiente producto:\n", JSON.parse(data) );
 
     }catch(err) {
         console.error("Algo salio mal !!");
